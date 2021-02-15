@@ -1,7 +1,7 @@
 const app = require("express")();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http, {
-  cors: true,
+  cors: true
 });
 
 app.get("/", (req, res) => {
@@ -28,12 +28,12 @@ io.on("connection", (socket) => {
 
     const flatUsers = Object.entries(users).map(([id, user]) => ({
       id,
-      ...user,
+      ...user
     }));
     io.emit("user list updated", flatUsers);
   });
 });
 
-http.listen(3000, () => {
-  console.log("listening on *:3000");
+http.listen(8080, () => {
+  console.log("listening on *:8080");
 });
