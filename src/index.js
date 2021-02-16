@@ -1,7 +1,7 @@
 const app = require("express")();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http, {
-  cors: true,
+  cors: true
 });
 
 app.get("/", (req, res) => {
@@ -12,7 +12,9 @@ app.get("/", (req, res) => {
 const users = {};
 
 io.on("connection", (socket) => {
-  console.log("User connected");
+  const address = socket.handshake.headers["x-forwarded-for"].split(",")[0];
+  console.log(address);
+  console.log(`User connected from ip: ${address}`);
 
   socket.on("disconnect", () => {
     console.log("user disconnected");
@@ -23,14 +25,13 @@ io.on("connection", (socket) => {
   });
 
   socket.on("login", (user) => {
-    console.log(`inside login - ${socket.request.connection.remoteAddress}`);
-    const ip = socket.request.connection.remoteAddress;
-    console.log(`new usersip: ${ip}`);
+    const ip = socket.handshake.headers["x-forwarded-for"].split(",")[0];
+    console.log(`user logged in: ${user} from ${ip}`);
     users[ip] = user;
 
     const flatUsers = Object.entries(users).map(([id, user]) => ({
       id,
-      ...user,
+      ...user
     }));
     io.emit("user list updated", flatUsers);
   });
