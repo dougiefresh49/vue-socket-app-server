@@ -1,7 +1,7 @@
 const app = require("express")();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http, {
-  cors: true
+  cors: true,
 });
 
 app.get("/", (req, res) => {
@@ -23,12 +23,14 @@ io.on("connection", (socket) => {
   });
 
   socket.on("login", (user) => {
-    const ip = socket.conn.remoteAddress;
+    console.log(`inside login - ${socket.request.connection.remoteAddress}`);
+    const ip = socket.request.connection.remoteAddress;
+    console.log(`new usersip: ${ip}`);
     users[ip] = user;
 
     const flatUsers = Object.entries(users).map(([id, user]) => ({
       id,
-      ...user
+      ...user,
     }));
     io.emit("user list updated", flatUsers);
   });
