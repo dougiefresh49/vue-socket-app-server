@@ -24,16 +24,23 @@ io.on("connection", (socket) => {
     io.emit("chat message", msg);
   });
 
+  function getFlattenedUsers() {
+    return Object.entries(users).map(([id, user]) => ({
+      id,
+      ...user
+    }));
+  }
+
   socket.on("login", (user) => {
     const ip = socket.handshake.headers["x-forwarded-for"].split(",")[0];
     console.log(`user logged in: ${user} from ${ip}`);
     users[ip] = user;
+    io.emit("user list updated", getFlattenedUsers());
+  });
 
-    const flatUsers = Object.entries(users).map(([id, user]) => ({
-      id,
-      ...user
-    }));
-    io.emit("user list updated", flatUsers);
+  socket.on("reconnected", () => {
+    console.log("A user has reconnected");
+    io.emit("user list updated", getFlattenedUsers());
   });
 });
 
